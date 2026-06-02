@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Cut</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --border: #1e1e1e;
+    --accent: #c8f542;
+    --text: #f0f0f0;
+    --muted: #555;
+    --dim: #2a2a2a;
+  }
+
+  html, body {
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 0 80px 0;
+  }
+
+  /* ── SETUP SCREEN ── */
+  #setupScreen {
+    display: none;
+    min-height: 100vh;
+    width: 100%;
+    max-width: 480px;
+    padding: 60px 24px 80px;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  #setupScreen.visible { display: flex; }
+
+  .setup-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 52px;
+    letter-spacing: 6px;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+
+  .setup-tagline {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 48px;
+  }
+
+  .setup-card {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px 24px;
+  }
+
+  .setup-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 2px;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  .setup-desc {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 28px;
+    font-weight: 300;
+  }
+
+  .setup-steps {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 2;
+    letter-spacing: 0.5px;
+    margin-bottom: 28px;
+    background: var(--dim);
+    border-radius: 8px;
+    padding: 16px;
+  }
+
+  .setup-steps a { color: var(--accent); text-decoration: none; }
+  .setup-steps code {
+    background: #1a1a1a;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+    color: var(--text);
+  }
+
+  .setup-field { margin-bottom: 16px; }
+
+  .setup-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .setup-input {
+    width: 100%;
+    background: var(--dim);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    padding: 13px 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .setup-input:focus { border-color: var(--accent); }
+  .setup-input::placeholder { color: var(--muted); }
+
+  .setup-connect-btn {
+    width: 100%;
+    background: var(--accent);
+    border: none;
+    border-radius: 8px;
+    color: #0a0a0a;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-weight: 500;
+    padding: 16px;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+
+  .setup-connect-btn:active { transform: scale(0.98); opacity: 0.85; }
+  .setup-connect-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .setup-error {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: #ff6b6b;
+    letter-spacing: 1px;
+    text-align: center;
+    margin-top: 12px;
+    display: none;
+  }
+
+  .setup-skip {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    margin-top: 20px;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  /* ── MAIN APP ── */
+  #appScreen { display: none; width: 100%; flex-direction: column; align-items: center; }
+  #appScreen.visible { display: flex; }
+
+  header {
+    width: 100%;
+    padding: 32px 24px 24px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 40px;
+  }
+
+  .site-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 56px;
+    letter-spacing: 6px;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .site-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .sync-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    justify-content: center;
+  }
+
+  .sync-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--muted);
+    transition: background 0.4s;
+  }
+
+  .sync-dot.synced { background: var(--accent); }
+  .sync-dot.syncing { background: #f5a623; animation: pulse 0.8s infinite; }
+  .sync-dot.error { background: #ff6b6b; }
+  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
+
+  .sync-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .sync-reset {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    color: #333;
+    text-transform: uppercase;
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-left: 8px;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .sync-reset:hover { color: var(--muted); }
+
+  .container {
+    width: 100%;
+    max-width: 480px;
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+  }
+
+  .card-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  .big-day { font-family: 'Bebas Neue', sans-serif; font-size: 96px; line-height: 1; color: var(--accent); letter-spacing: 2px; }
+  .day-label { font-size: 14px; color: var(--muted); margin-top: 4px; font-weight: 300; }
+  .date-string { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--text); margin-top: 2px; }
+
+  /* Quote */
+  .quote-text {
+    font-size: 17px;
+    font-style: italic;
+    font-weight: 300;
+    line-height: 1.6;
+    color: var(--text);
+    margin-bottom: 12px;
+    border-left: 2px solid var(--accent);
+    padding-left: 16px;
+  }
+
+  .quote-author { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; }
+
+  .quote-refresh {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    padding: 6px 12px;
+    cursor: pointer;
+    margin-top: 14px;
+    text-transform: uppercase;
+    transition: color 0.2s, border-color 0.2s;
+    display: block;
+  }
+
+  .quote-refresh:hover { color: var(--accent); border-color: var(--accent); }
+
+  /* Weather */
+  .weather-row { display: flex; align-items: center; gap: 16px; }
+  .weather-temp { font-family: 'Bebas Neue', sans-serif; font-size: 64px; line-height: 1; color: var(--text); }
+  .weather-details { display: flex; flex-direction: column; gap: 4px; }
+  .weather-desc { font-size: 15px; font-weight: 400; color: var(--text); text-transform: capitalize; }
+  .weather-meta { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 1px; }
+  .weather-loading { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted); letter-spacing: 2px; }
+
+  /* Weight */
+  .weight-display { display: flex; align-items: baseline; gap: 8px; }
+  .weight-num { font-family: 'Bebas Neue', sans-serif; font-size: 80px; line-height: 1; color: var(--text); }
+  .weight-unit { font-family: 'DM Mono', monospace; font-size: 18px; color: var(--muted); margin-bottom: 8px; }
+  .weight-no-entry { font-size: 14px; color: var(--muted); font-style: italic; }
+
+  .weight-change {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin-top: 8px;
+  }
+
+  .weight-change.down { background: rgba(200,245,66,0.1); color: var(--accent); }
+  .weight-change.up { background: rgba(255,80,80,0.1); color: #ff6b6b; }
+  .weight-change.same { background: var(--dim); color: var(--muted); }
+
+  /* Chart */
+  .chart-wrap { position: relative; width: 100%; height: 200px; }
+  .chart-empty { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted); text-align: center; padding: 40px 0; letter-spacing: 1px; }
+
+  .chart-stats { display: flex; gap: 0; margin-bottom: 20px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .chart-stat { flex: 1; padding: 12px; text-align: center; border-right: 1px solid var(--border); }
+  .chart-stat:last-child { border-right: none; }
+  .chart-stat-val { font-family: 'Bebas Neue', sans-serif; font-size: 26px; line-height: 1; color: var(--text); }
+  .chart-stat-val.accent { color: var(--accent); }
+  .chart-stat-val.red { color: #ff6b6b; }
+  .chart-stat-lbl { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 1px; color: var(--muted); margin-top: 3px; text-transform: uppercase; }
+
+  /* Log form */
+  .update-section { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+
+  .update-toggle {
+    width: 100%;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 18px 24px;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: color 0.2s;
+  }
+
+  .update-toggle:hover { color: var(--text); }
+  .toggle-arrow { font-size: 16px; transition: transform 0.2s; }
+  .update-toggle.open .toggle-arrow { transform: rotate(180deg); }
+
+  .update-form { display: none; padding: 0 24px 24px; flex-direction: column; gap: 14px; border-top: 1px solid var(--border); }
+  .update-form.visible { display: flex; }
+
+  .input-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; margin-bottom: 6px; display: block; }
+
+  .weight-input {
+    width: 100%;
+    background: var(--dim);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 28px;
+    padding: 14px 16px;
+    outline: none;
+    text-align: center;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  .weight-input:focus { border-color: var(--accent); }
+
+  .save-btn {
+    width: 100%;
+    background: var(--accent);
+    border: none;
+    border-radius: 8px;
+    color: #0a0a0a;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-weight: 500;
+    padding: 16px;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+
+  .save-btn:active { transform: scale(0.98); opacity: 0.85; }
+  .save-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .saved-msg { text-align: center; font-family: 'DM Mono', monospace; font-size: 11px; color: var(--accent); letter-spacing: 2px; display: none; }
+
+  /* History */
+  .history-list { display: flex; flex-direction: column; gap: 0; }
+  .history-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .history-item:last-child { border-bottom: none; }
+  .history-day { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 1px; }
+  .history-date { font-size: 12px; color: #333; margin-top: 2px; font-family: 'DM Mono', monospace; }
+  .history-weight { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--text); }
+  .history-delta { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); text-align: right; }
+  .history-delta.neg { color: var(--accent); }
+  .history-delta.pos { color: #ff6b6b; }
+  .no-history { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted); text-align: center; padding: 16px 0; letter-spacing: 1px; }
+
+  .footer-note { margin-top: 40px; font-family: 'DM Mono', monospace; font-size: 10px; color: #333; letter-spacing: 2px; text-align: center; }
+
+  @media (max-width: 380px) {
+    .big-day { font-size: 72px; }
+    .weather-temp { font-size: 50px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── SETUP SCREEN ── -->
+<div id="setupScreen">
+  <div class="setup-logo">THE CUT</div>
+  <div class="setup-tagline">Connect cloud sync</div>
+
+  <div class="setup-card">
+    <div class="setup-title">One-Time Setup</div>
+    <div class="setup-desc">Your credentials stay on this device only — they're never in your code or on GitHub.</div>
+
+    <div class="setup-steps">
+      1. Go to <a href="https://jsonbin.io" target="_blank">jsonbin.io</a> → sign up free<br>
+      2. Dashboard → <strong>API Keys</strong> → copy Master Key<br>
+      3. <strong>Bins → Create Bin</strong> → paste <code>{"history":[]}</code> → Save<br>
+      4. Copy the <strong>Bin ID</strong> from the URL<br>
+      5. Paste both below ↓
+    </div>
+
+    <div class="setup-field">
+      <label class="setup-label">Master API Key</label>
+      <input class="setup-input" id="setupKey" type="password" placeholder="$2b$10$..." autocomplete="off" spellcheck="false">
+    </div>
+
+    <div class="setup-field">
+      <label class="setup-label">Bin ID</label>
+      <input class="setup-input" id="setupBin" type="text" placeholder="6660abc123def..." autocomplete="off" spellcheck="false">
+    </div>
+
+    <button class="setup-connect-btn" id="connectBtn" onclick="connectCloud()">CONNECT & SYNC</button>
+    <div class="setup-error" id="setupError"></div>
+  </div>
+
+  <button class="setup-skip" onclick="skipSetup()">Skip — use local storage only</button>
+</div>
+
+<!-- ── MAIN APP ── -->
+<div id="appScreen">
+  <header>
+    <div class="site-title">THE CUT</div>
+    <div class="site-sub">daily weight tracker</div>
+    <div class="sync-bar">
+      <div class="sync-dot" id="syncDot"></div>
+      <div class="sync-label" id="syncLabel">LOCAL ONLY</div>
+      <button class="sync-reset" onclick="resetCredentials()" title="Change sync credentials">change</button>
+    </div>
+  </header>
+
+  <div class="container">
+
+    <div class="card">
+      <div class="card-label">Day</div>
+      <div class="big-day" id="dayNum">–</div>
+      <div class="day-label">of your journey</div>
+      <div class="date-string" id="todayDate">–</div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Today's Fuel</div>
+      <div class="quote-text" id="quoteText"></div>
+      <div class="quote-author" id="quoteAuthor"></div>
+      <button class="quote-refresh" onclick="nextQuote()">↺ &nbsp;New Quote</button>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Weather</div>
+      <div id="weatherDisplay"><div class="weather-loading">LOCATING...</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Today's Weight</div>
+      <div id="weightDisplay"><div class="weight-no-entry">Loading...</div></div>
+    </div>
+
+    <div class="update-section">
+      <button class="update-toggle" id="toggleBtn" onclick="toggleForm()">
+        <span>Log today's weight</span>
+        <span class="toggle-arrow">▾</span>
+      </button>
+      <div class="update-form" id="updateForm">
+        <div style="padding-top:16px">
+          <label class="input-label">Weight (lbs)</label>
+          <input class="weight-input" type="number" id="weightInput" step="0.1" min="50" max="600" placeholder="000.0" inputmode="decimal">
+        </div>
+        <button class="save-btn" id="saveBtn" onclick="saveWeight()">SAVE WEIGHT</button>
+        <div class="saved-msg" id="savedMsg">✓ &nbsp;SAVED</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Progress</div>
+      <div id="chartStatsWrap"></div>
+      <div class="chart-wrap">
+        <div class="chart-empty" id="chartEmpty">Log at least 2 days to see your graph.</div>
+        <canvas id="weightChart" style="display:none;"></canvas>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">History</div>
+      <div class="history-list" id="historyList">
+        <div class="no-history">Loading...</div>
+      </div>
+    </div>
+
+  </div>
+  <div class="footer-note" id="footerNote">GITHUB PAGES</div>
+</div>
+
+<script>
+// ── CONFIG ───────────────────────────────────────────
+const START_DATE = '2026-06-01';
+// ─────────────────────────────────────────────────────
+
+// ── CREDENTIALS (stored in localStorage, never in code) ──
+function getCreds() {
+  return {
+    key: localStorage.getItem('thecut_api_key') || '',
+    bin: localStorage.getItem('thecut_bin_id') || ''
+  };
+}
+
+function saveCreds(key, bin) {
+  localStorage.setItem('thecut_api_key', key);
+  localStorage.setItem('thecut_bin_id', bin);
+}
+
+function clearCreds() {
+  localStorage.removeItem('thecut_api_key');
+  localStorage.removeItem('thecut_bin_id');
+}
+
+function isConfigured() {
+  const c = getCreds();
+  return c.key.length > 10 && c.bin.length > 5;
+}
+
+// ── ROUTING ──────────────────────────────────────────
+function showSetup() {
+  document.getElementById('setupScreen').classList.add('visible');
+  document.getElementById('appScreen').classList.remove('visible');
+}
+
+function showApp() {
+  document.getElementById('setupScreen').classList.remove('visible');
+  document.getElementById('appScreen').classList.add('visible');
+  boot();
+}
+
+function skipSetup() {
+  localStorage.setItem('thecut_skip_sync', '1');
+  showApp();
+}
+
+function resetCredentials() {
+  if (!confirm('Disconnect cloud sync on this device?')) return;
+  clearCreds();
+  localStorage.removeItem('thecut_skip_sync');
+  showSetup();
+}
+
+// ── CONNECT ──────────────────────────────────────────
+async function connectCloud() {
+  const key = document.getElementById('setupKey').value.trim();
+  const bin = document.getElementById('setupBin').value.trim();
+  const btn = document.getElementById('connectBtn');
+  const err = document.getElementById('setupError');
+
+  if (!key || !bin) {
+    err.textContent = 'BOTH FIELDS REQUIRED';
+    err.style.display = 'block';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'CONNECTING...';
+  err.style.display = 'none';
+
+  try {
+    const res = await fetch(`https://api.jsonbin.io/v3/b/${bin}/latest`, {
+      headers: { 'X-Master-Key': key }
+    });
+    if (!res.ok) throw new Error('Invalid credentials or Bin ID');
+    saveCreds(key, bin);
+    showApp();
+  } catch (e) {
+    err.textContent = 'COULD NOT CONNECT — CHECK KEY & BIN ID';
+    err.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'CONNECT & SYNC';
+  }
+}
+
+// ── QUOTES ───────────────────────────────────────────
+const QUOTES = [
+  { text: "The only bad workout is the one that didn't happen.", author: "Unknown" },
+  { text: "Don't wish it were easier. Wish you were better.", author: "Jim Rohn" },
+  { text: "It never gets easier. You just get stronger.", author: "Unknown" },
+  { text: "Suffer the pain of discipline or the pain of regret.", author: "Unknown" },
+  { text: "Your body can stand almost anything. It's your mind you have to convince.", author: "Unknown" },
+  { text: "The groundwork for all happiness is good health.", author: "Leigh Hunt" },
+  { text: "Take care of your body. It's the only place you have to live.", author: "Jim Rohn" },
+  { text: "You don't have to be great to start, but you have to start to be great.", author: "Zig Ziglar" },
+  { text: "Success is the sum of small efforts repeated day in and day out.", author: "Robert Collier" },
+  { text: "The hard days are what make you stronger.", author: "Aly Raisman" },
+  { text: "One pound at a time.", author: "Unknown" },
+  { text: "Motivation gets you started. Discipline keeps you going.", author: "Unknown" },
+  { text: "Fall seven times, stand up eight.", author: "Japanese Proverb" },
+  { text: "If it doesn't challenge you, it doesn't change you.", author: "Fred DeVito" },
+  { text: "You are one decision away from a completely different life.", author: "Unknown" },
+  { text: "Small steps every day add up to massive results.", author: "Unknown" },
+  { text: "Push yourself because no one else is going to do it for you.", author: "Unknown" },
+  { text: "Believe in yourself and all that you are.", author: "Christian D. Larson" },
+  { text: "Champions aren't made in gyms. Champions are made from something deep inside.", author: "Muhammad Ali" },
+  { text: "The comeback is always stronger than the setback.", author: "Unknown" },
+  { text: "Eat clean. Train mean. Get lean.", author: "Unknown" },
+  { text: "Your future self is watching you right now through your memories.", author: "Unknown" },
+  { text: "A year from now you'll wish you started today.", author: "Karen Lamb" },
+  { text: "Progress, not perfection.", author: "Unknown" },
+  { text: "Every rep brings you closer.", author: "Unknown" },
+];
+
+let quoteIndex = 0;
+
+function showQuote(idx) {
+  const q = QUOTES[idx];
+  document.getElementById('quoteText').textContent = `"${q.text}"`;
+  document.getElementById('quoteAuthor').textContent = `— ${q.author}`;
+}
+
+function nextQuote() {
+  quoteIndex = (quoteIndex + 1) % QUOTES.length;
+  showQuote(quoteIndex);
+}
+
+// ── HELPERS ──────────────────────────────────────────
+function getDayNumber() {
+  const start = new Date(START_DATE + 'T00:00:00');
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  return Math.max(1, Math.floor((today - start) / 86400000) + 1);
+}
+
+function formatDateStr(date) {
+  return date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+}
+
+function todayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}_${d.getMonth()}_${d.getDate()}`;
+}
+
+// ── DATA LAYER ───────────────────────────────────────
+let _history = [];
+
+function loadLocal() {
+  try { return JSON.parse(localStorage.getItem('thecut_history') || '[]'); }
+  catch { return []; }
+}
+
+function saveLocal(h) { localStorage.setItem('thecut_history', JSON.stringify(h)); }
+
+function setSyncStatus(state, label) {
+  const dot = document.getElementById('syncDot');
+  const lbl = document.getElementById('syncLabel');
+  dot.className = 'sync-dot ' + state;
+  lbl.textContent = label;
+}
+
+async function cloudRead() {
+  const { key, bin } = getCreds();
+  setSyncStatus('syncing', 'SYNCING...');
+  const res = await fetch(`https://api.jsonbin.io/v3/b/${bin}/latest`, {
+    headers: { 'X-Master-Key': key }
+  });
+  if (!res.ok) throw new Error('Read failed');
+  const json = await res.json();
+  return json.record.history || [];
+}
+
+async function cloudWrite(history) {
+  const { key, bin } = getCreds();
+  setSyncStatus('syncing', 'SAVING...');
+  const res = await fetch(`https://api.jsonbin.io/v3/b/${bin}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'X-Master-Key': key },
+    body: JSON.stringify({ history })
+  });
+  if (!res.ok) throw new Error('Write failed');
+}
+
+async function loadHistory() {
+  if (isConfigured()) {
+    try {
+      _history = await cloudRead();
+      saveLocal(_history);
+      setSyncStatus('synced', 'SYNCED');
+      document.getElementById('footerNote').textContent = 'SYNCED VIA JSONBIN · GITHUB PAGES';
+    } catch {
+      _history = loadLocal();
+      setSyncStatus('error', 'OFFLINE — LOCAL CACHE');
+    }
+  } else {
+    _history = loadLocal();
+    setSyncStatus('', 'LOCAL ONLY');
+  }
+  return _history;
+}
+
+async function persistHistory(h) {
+  _history = h;
+  saveLocal(h);
+  if (isConfigured()) {
+    try {
+      await cloudWrite(h);
+      setSyncStatus('synced', 'SYNCED');
+    } catch {
+      setSyncStatus('error', 'SYNC FAILED — SAVED LOCALLY');
+    }
+  }
+}
+
+function getTodayEntry() {
+  const key = todayKey();
+  return _history.find(e => e.key === key) || null;
+}
+
+// ── RENDER WEIGHT ─────────────────────────────────────
+function renderWeight() {
+  const todayEntry = getTodayEntry();
+  const display = document.getElementById('weightDisplay');
+  if (!todayEntry) {
+    display.innerHTML = '<div class="weight-no-entry">No entry yet today</div>';
+    return;
+  }
+  const idx = _history.findIndex(e => e.key === todayEntry.key);
+  const prev = idx > 0 ? _history[idx - 1] : null;
+  let changeHTML = '';
+  if (prev) {
+    const delta = todayEntry.weight - prev.weight;
+    const sign = delta < 0 ? '−' : delta > 0 ? '+' : '±';
+    const cls = delta < 0 ? 'down' : delta > 0 ? 'up' : 'same';
+    changeHTML = `<div class="weight-change ${cls}">${sign} ${Math.abs(delta).toFixed(1)} lbs from yesterday</div>`;
+  }
+  display.innerHTML = `
+    <div class="weight-display">
+      <div class="weight-num">${todayEntry.weight.toFixed(1)}</div>
+      <div class="weight-unit">lbs</div>
+    </div>
+    ${changeHTML}
+  `;
+}
+
+// ── RENDER CHART ──────────────────────────────────────
+let chartInstance = null;
+
+function renderChart() {
+  const history = _history;
+  const empty = document.getElementById('chartEmpty');
+  const canvas = document.getElementById('weightChart');
+  const statsWrap = document.getElementById('chartStatsWrap');
+
+  if (history.length < 2) {
+    empty.style.display = 'block';
+    canvas.style.display = 'none';
+    statsWrap.innerHTML = '';
+    return;
+  }
+
+  empty.style.display = 'none';
+  canvas.style.display = 'block';
+
+  const labels = history.map(e => `D${e.day}`);
+  const weights = history.map(e => e.weight);
+  const first = weights[0], last = weights[weights.length - 1];
+  const totalLost = first - last;
+  const min = Math.min(...weights), max = Math.max(...weights);
+
+  const lostCls = totalLost > 0 ? 'accent' : totalLost < 0 ? 'red' : '';
+  const sign = totalLost > 0 ? '−' : totalLost < 0 ? '+' : '';
+  statsWrap.innerHTML = `
+    <div class="chart-stats">
+      <div class="chart-stat">
+        <div class="chart-stat-val ${lostCls}">${sign}${Math.abs(totalLost).toFixed(1)}</div>
+        <div class="chart-stat-lbl">lbs total</div>
+      </div>
+      <div class="chart-stat">
+        <div class="chart-stat-val">${history.length}</div>
+        <div class="chart-stat-lbl">entries</div>
+      </div>
+      <div class="chart-stat">
+        <div class="chart-stat-val">${min.toFixed(1)}</div>
+        <div class="chart-stat-lbl">lowest</div>
+      </div>
+    </div>
+  `;
+
+  const pad = Math.max((max - min) * 0.3, 2);
+  if (chartInstance) chartInstance.destroy();
+
+  chartInstance = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        data: weights,
+        borderColor: '#c8f542',
+        borderWidth: 2,
+        pointBackgroundColor: '#c8f542',
+        pointBorderColor: '#0a0a0a',
+        pointBorderWidth: 2,
+        pointRadius: history.length > 30 ? 2 : 5,
+        pointHoverRadius: 7,
+        tension: 0.35,
+        fill: true,
+        backgroundColor: (ctx) => {
+          const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 200);
+          g.addColorStop(0, 'rgba(200,245,66,0.18)');
+          g.addColorStop(1, 'rgba(200,245,66,0)');
+          return g;
+        }
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1a1a1a',
+          borderColor: '#2a2a2a',
+          borderWidth: 1,
+          titleColor: '#555',
+          bodyColor: '#f0f0f0',
+          titleFont: { family: 'DM Mono', size: 10 },
+          bodyFont: { family: 'Bebas Neue', size: 20 },
+          padding: 12,
+          callbacks: {
+            title: (items) => `DAY ${history[items[0].dataIndex].day}`,
+            label: (item) => `${item.raw.toFixed(1)} lbs`
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(255,255,255,0.04)' },
+          ticks: { color: '#555', font: { family: 'DM Mono', size: 9 }, maxTicksLimit: 8, maxRotation: 0 },
+          border: { color: '#1e1e1e' }
+        },
+        y: {
+          min: Math.floor(min - pad), max: Math.ceil(max + pad),
+          grid: { color: 'rgba(255,255,255,0.04)' },
+          ticks: { color: '#555', font: { family: 'DM Mono', size: 9 }, maxTicksLimit: 5, callback: v => v + ' lb' },
+          border: { color: '#1e1e1e' }
+        }
+      }
+    }
+  });
+}
+
+// ── RENDER HISTORY ────────────────────────────────────
+function renderHistory() {
+  const list = document.getElementById('historyList');
+  if (!_history.length) {
+    list.innerHTML = '<div class="no-history">No entries yet.</div>';
+    return;
+  }
+  const reversed = [..._history].reverse();
+  list.innerHTML = reversed.map((entry, i) => {
+    const prev = reversed[i + 1];
+    let deltaHTML = '';
+    if (prev) {
+      const delta = entry.weight - prev.weight;
+      const sign = delta < 0 ? '−' : delta > 0 ? '+' : '±';
+      const cls = delta < 0 ? 'neg' : delta > 0 ? 'pos' : '';
+      deltaHTML = `<div class="history-delta ${cls}">${sign} ${Math.abs(delta).toFixed(1)} lbs</div>`;
+    }
+    return `
+      <div class="history-item">
+        <div>
+          <div class="history-day">DAY ${entry.day}</div>
+          <div class="history-date">${entry.date}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="history-weight">${entry.weight.toFixed(1)}</div>
+          ${deltaHTML}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderAll() {
+  renderWeight();
+  renderChart();
+  renderHistory();
+}
+
+// ── SAVE WEIGHT ───────────────────────────────────────
+async function saveWeight() {
+  const input = document.getElementById('weightInput');
+  const btn = document.getElementById('saveBtn');
+  const val = parseFloat(input.value);
+  if (isNaN(val) || val < 50 || val > 600) {
+    input.style.borderColor = '#ff6b6b';
+    setTimeout(() => input.style.borderColor = '', 1000);
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'SAVING...';
+
+  const key = todayKey();
+  const dateStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const updated = _history.filter(e => e.key !== key);
+  updated.push({ key, day: getDayNumber(), date: dateStr, weight: val });
+  updated.sort((a, b) => a.day - b.day);
+
+  await persistHistory(updated);
+  renderAll();
+
+  btn.disabled = false;
+  btn.textContent = 'SAVE WEIGHT';
+
+  const msg = document.getElementById('savedMsg');
+  msg.style.display = 'block';
+  msg.textContent = isConfigured() ? '✓  SAVED & SYNCED' : '✓  SAVED LOCALLY';
+  setTimeout(() => msg.style.display = 'none', 2500);
+  input.value = '';
+}
+
+function toggleForm() {
+  document.getElementById('toggleBtn').classList.toggle('open');
+  document.getElementById('updateForm').classList.toggle('visible');
+}
+
+// ── WEATHER ───────────────────────────────────────────
+function fetchWeather(lat, lon) {
+  fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto`)
+    .then(r => r.json())
+    .then(data => {
+      const cw = data.current_weather;
+      document.getElementById('weatherDisplay').innerHTML = `
+        <div class="weather-row">
+          <div class="weather-temp">${Math.round(cw.temperature)}°</div>
+          <div class="weather-details">
+            <div class="weather-desc">${wmoIcon(cw.weathercode, cw.is_day)} ${wmoDesc(cw.weathercode)}</div>
+            <div class="weather-meta">Wind ${Math.round(cw.windspeed)} mph · F</div>
+          </div>
+        </div>
+      `;
+    })
+    .catch(() => {
+      document.getElementById('weatherDisplay').innerHTML = '<div class="weather-loading">WEATHER UNAVAILABLE</div>';
+    });
+}
+
+function wmoDesc(c) {
+  if (c===0) return 'Clear sky'; if (c<=2) return 'Partly cloudy'; if (c===3) return 'Overcast';
+  if (c<=49) return 'Foggy'; if (c<=59) return 'Drizzle'; if (c<=69) return 'Rain';
+  if (c<=79) return 'Snow'; if (c<=82) return 'Rain showers'; if (c<=86) return 'Snow showers';
+  return 'Thunderstorm';
+}
+
+function wmoIcon(c, isDay) {
+  if (c===0) return isDay ? '☀️' : '🌙'; if (c<=2) return '⛅'; if (c===3) return '☁️';
+  if (c<=49) return '🌫️'; if (c<=69) return '🌧️'; if (c<=79) return '❄️';
+  if (c<=86) return '🌨️'; return '⛈️';
+}
+
+// ── BOOT ──────────────────────────────────────────────
+function boot() {
+  // Day + date
+  document.getElementById('dayNum').textContent = getDayNumber();
+  document.getElementById('todayDate').textContent = formatDateStr(new Date());
+
+  // Quote
+  quoteIndex = (new Date().getFullYear() * 1000 + new Date().getMonth() * 31 + new Date().getDate()) % QUOTES.length;
+  showQuote(quoteIndex);
+
+  // Weather
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      pos => fetchWeather(pos.coords.latitude, pos.coords.longitude),
+      () => { document.getElementById('weatherDisplay').innerHTML = '<div class="weather-loading">ALLOW LOCATION FOR WEATHER</div>'; }
+    );
+  }
+
+  // Data
+  loadHistory().then(renderAll);
+}
+
+// ── INIT ──────────────────────────────────────────────
+if (isConfigured() || localStorage.getItem('thecut_skip_sync') === '1') {
+  showApp();
+} else {
+  showSetup();
+}
+</script>
+</body>
+</html>
