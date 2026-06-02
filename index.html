@@ -316,19 +316,27 @@ html, body {
 
 .footer-note { font-family:'DM Mono',monospace; font-size:10px; color:var(--muted); opacity:0.35; letter-spacing:2px; text-align:center; padding:20px 0 40px; }
 
+/* ── NAV BAR ── */
+.nav-bar {
+  width:100%; background:var(--surface); border-bottom:1px solid var(--border);
+  display:flex; align-items:center; justify-content:center; gap:4px;
+  padding:0 16px; position:sticky; top:0; z-index:100;
+  box-shadow: 0 1px 0 var(--border);
+}
+.nav-link {
+  font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; text-transform:uppercase;
+  color:var(--muted); text-decoration:none; padding:14px 20px; border-bottom:2px solid transparent;
+  transition:color 0.2s, border-color 0.2s;
+}
+.nav-link:hover { color:var(--text); }
+.nav-link.active { color:var(--accent); border-bottom-color:var(--accent); }
+
 /* ─────────────────────────────────────────
    RESPONSIVE — collapse to single column
 ───────────────────────────────────────── */
 @media (max-width: 900px) {
   .grid-3, .grid-2 { grid-template-columns:1fr; }
-  .page-body { padding:24px 16px 60px; }
-  .hero { padding:40px 20px 36px; }
-  .hero-controls { top:16px; right:16px; }
-}
-
-@media (max-width: 600px) {
-  .hero-title { font-size:52px; letter-spacing:6px; }
-  .hero-day-num { font-size:96px; }
+  .card { padding:20px 18px; }
 }
 </style>
 </head>
@@ -366,6 +374,12 @@ html, body {
 
 <!-- ══ MAIN APP ══ -->
 <div id="appScreen">
+
+  <!-- NAV -->
+  <nav class="nav-bar">
+    <a class="nav-link active" href="index.html">⚖ Weight</a>
+    <a class="nav-link" href="workout.html">💪 Workout</a>
+  </nav>
 
   <!-- HERO -->
   <div class="hero">
