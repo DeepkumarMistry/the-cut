@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,6 +18,18 @@
     --text: #f0f0f0;
     --muted: #555;
     --dim: #2a2a2a;
+    --shadow: rgba(0,0,0,0.4);
+  }
+
+  [data-theme="light"] {
+    --bg: #f4f4f0;
+    --surface: #ffffff;
+    --border: #e0e0d8;
+    --accent: #5a9e00;
+    --text: #111111;
+    --muted: #999;
+    --dim: #eeeeea;
+    --shadow: rgba(0,0,0,0.08);
   }
 
   html, body {
@@ -25,296 +37,112 @@
     background: var(--bg);
     color: var(--text);
     font-family: 'DM Sans', sans-serif;
+    transition: background 0.3s, color 0.3s;
   }
 
-  body {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 0 0 80px 0;
+  body { display: flex; flex-direction: column; align-items: center; padding: 0 0 80px 0; }
+
+  /* ── CONFETTI ── */
+  #confettiCanvas {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 9999;
   }
 
   /* ── SETUP SCREEN ── */
-  #setupScreen {
-    display: none;
-    min-height: 100vh;
-    width: 100%;
-    max-width: 480px;
-    padding: 60px 24px 80px;
-    flex-direction: column;
-    align-items: center;
-  }
-
+  #setupScreen { display: none; min-height: 100vh; width: 100%; max-width: 480px; padding: 60px 24px 80px; flex-direction: column; align-items: center; }
   #setupScreen.visible { display: flex; }
 
-  .setup-logo {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 52px;
-    letter-spacing: 6px;
-    color: var(--accent);
-    margin-bottom: 8px;
-  }
+  .setup-logo { font-family: 'Bebas Neue', sans-serif; font-size: 52px; letter-spacing: 6px; color: var(--accent); margin-bottom: 8px; }
+  .setup-tagline { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; margin-bottom: 48px; }
 
-  .setup-tagline {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 3px;
-    color: var(--muted);
-    text-transform: uppercase;
-    margin-bottom: 48px;
-  }
+  .setup-card { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 28px 24px; }
+  .setup-title { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 2px; color: var(--text); margin-bottom: 6px; }
+  .setup-desc { font-size: 14px; color: var(--muted); line-height: 1.6; margin-bottom: 28px; font-weight: 300; }
 
-  .setup-card {
-    width: 100%;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 28px 24px;
-  }
-
-  .setup-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 28px;
-    letter-spacing: 2px;
-    color: var(--text);
-    margin-bottom: 6px;
-  }
-
-  .setup-desc {
-    font-size: 14px;
-    color: var(--muted);
-    line-height: 1.6;
-    margin-bottom: 28px;
-    font-weight: 300;
-  }
-
-  .setup-steps {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: var(--muted);
-    line-height: 2;
-    letter-spacing: 0.5px;
-    margin-bottom: 28px;
-    background: var(--dim);
-    border-radius: 8px;
-    padding: 16px;
-  }
-
+  .setup-steps { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); line-height: 2; letter-spacing: 0.5px; margin-bottom: 28px; background: var(--dim); border-radius: 8px; padding: 16px; }
   .setup-steps a { color: var(--accent); text-decoration: none; }
-  .setup-steps code {
-    background: #1a1a1a;
-    padding: 1px 6px;
-    border-radius: 4px;
-    font-size: 11px;
-    color: var(--text);
-  }
+  .setup-steps code { background: var(--bg); padding: 1px 6px; border-radius: 4px; font-size: 11px; color: var(--text); }
 
   .setup-field { margin-bottom: 16px; }
-
-  .setup-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 2px;
-    color: var(--muted);
-    text-transform: uppercase;
-    display: block;
-    margin-bottom: 8px;
-  }
-
-  .setup-input {
-    width: 100%;
-    background: var(--dim);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--text);
-    font-family: 'DM Mono', monospace;
-    font-size: 13px;
-    padding: 13px 14px;
-    outline: none;
-    transition: border-color 0.2s;
-    letter-spacing: 0.5px;
-  }
-
+  .setup-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; display: block; margin-bottom: 8px; }
+  .setup-input { width: 100%; background: var(--dim); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: 'DM Mono', monospace; font-size: 13px; padding: 13px 14px; outline: none; transition: border-color 0.2s; letter-spacing: 0.5px; }
   .setup-input:focus { border-color: var(--accent); }
   .setup-input::placeholder { color: var(--muted); }
 
-  .setup-connect-btn {
-    width: 100%;
-    background: var(--accent);
-    border: none;
-    border-radius: 8px;
-    color: #0a0a0a;
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    font-weight: 500;
-    padding: 16px;
-    cursor: pointer;
-    margin-top: 8px;
-    transition: opacity 0.2s, transform 0.1s;
-  }
-
+  .setup-connect-btn { width: 100%; background: var(--accent); border: none; border-radius: 8px; color: #0a0a0a; font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 3px; text-transform: uppercase; font-weight: 500; padding: 16px; cursor: pointer; margin-top: 8px; transition: opacity 0.2s, transform 0.1s; }
   .setup-connect-btn:active { transform: scale(0.98); opacity: 0.85; }
   .setup-connect-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .setup-error { font-family: 'DM Mono', monospace; font-size: 11px; color: #ff6b6b; letter-spacing: 1px; text-align: center; margin-top: 12px; display: none; }
+  .setup-skip { background: none; border: none; color: var(--muted); font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; margin-top: 20px; text-decoration: underline; text-underline-offset: 4px; }
 
-  .setup-error {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: #ff6b6b;
-    letter-spacing: 1px;
-    text-align: center;
-    margin-top: 12px;
-    display: none;
-  }
-
-  .setup-skip {
-    background: none;
-    border: none;
-    color: var(--muted);
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    cursor: pointer;
-    margin-top: 20px;
-    text-decoration: underline;
-    text-underline-offset: 4px;
-  }
-
-  /* ── MAIN APP ── */
+  /* ── HEADER ── */
   #appScreen { display: none; width: 100%; flex-direction: column; align-items: center; }
   #appScreen.visible { display: flex; }
 
-  header {
-    width: 100%;
-    padding: 32px 24px 24px;
-    text-align: center;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 40px;
-  }
+  header { width: 100%; padding: 32px 24px 24px; text-align: center; border-bottom: 1px solid var(--border); margin-bottom: 40px; position: relative; }
 
-  .site-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 56px;
-    letter-spacing: 6px;
-    color: var(--accent);
-    line-height: 1;
-    margin-bottom: 4px;
-  }
+  .site-title { font-family: 'Bebas Neue', sans-serif; font-size: 56px; letter-spacing: 6px; color: var(--accent); line-height: 1; margin-bottom: 4px; }
+  .site-sub { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; }
 
-  .site-sub {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 3px;
-    color: var(--muted);
-    text-transform: uppercase;
-  }
+  .header-controls { position: absolute; top: 32px; right: 20px; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
 
-  .sync-bar {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 12px;
-    justify-content: center;
-  }
+  .theme-toggle { background: var(--dim); border: 1px solid var(--border); border-radius: 20px; padding: 6px 12px; cursor: pointer; font-size: 14px; transition: background 0.2s; }
+  .theme-toggle:hover { background: var(--border); }
 
-  .sync-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--muted);
-    transition: background 0.4s;
-  }
-
+  .sync-bar { display: flex; align-items: center; gap: 8px; margin-top: 12px; justify-content: center; }
+  .sync-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); transition: background 0.4s; }
   .sync-dot.synced { background: var(--accent); }
   .sync-dot.syncing { background: #f5a623; animation: pulse 0.8s infinite; }
   .sync-dot.error { background: #ff6b6b; }
   @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
-
-  .sync-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 2px;
-    color: var(--muted);
-    text-transform: uppercase;
-  }
-
-  .sync-reset {
-    font-family: 'DM Mono', monospace;
-    font-size: 9px;
-    letter-spacing: 1px;
-    color: #333;
-    text-transform: uppercase;
-    background: none;
-    border: none;
-    cursor: pointer;
-    margin-left: 8px;
-    text-decoration: underline;
-    text-underline-offset: 3px;
-  }
-
+  .sync-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; }
+  .sync-reset { background: none; border: none; color: #333; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; margin-left: 8px; text-decoration: underline; text-underline-offset: 3px; }
   .sync-reset:hover { color: var(--muted); }
 
-  .container {
-    width: 100%;
-    max-width: 480px;
-    padding: 0 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
+  /* ── CONTAINER ── */
+  .container { width: 100%; max-width: 480px; padding: 0 20px; display: flex; flex-direction: column; gap: 20px; }
 
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 24px;
-  }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; box-shadow: 0 2px 12px var(--shadow); transition: background 0.3s, border-color 0.3s; }
+  .card-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
 
-  .card-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 10px;
-  }
-
+  /* Day */
   .big-day { font-family: 'Bebas Neue', sans-serif; font-size: 96px; line-height: 1; color: var(--accent); letter-spacing: 2px; }
   .day-label { font-size: 14px; color: var(--muted); margin-top: 4px; font-weight: 300; }
   .date-string { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--text); margin-top: 2px; }
 
+  /* Streak */
+  .streak-row { display: flex; align-items: center; gap: 12px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+  .streak-fire { font-size: 28px; }
+  .streak-num { font-family: 'Bebas Neue', sans-serif; font-size: 36px; line-height: 1; color: var(--text); }
+  .streak-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; margin-top: 2px; }
+
+  /* Goal & Progress */
+  .goal-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+  .goal-label-sm { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; }
+  .goal-val { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--text); }
+
+  .progress-track { width: 100%; height: 8px; background: var(--dim); border-radius: 99px; overflow: hidden; margin: 10px 0; }
+  .progress-fill { height: 100%; background: var(--accent); border-radius: 99px; transition: width 0.6s cubic-bezier(0.4,0,0.2,1); }
+
+  .progress-labels { display: flex; justify-content: space-between; }
+  .progress-lbl { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 1px; }
+
+  .countdown-big { font-family: 'Bebas Neue', sans-serif; font-size: 52px; line-height: 1; color: var(--accent); margin-top: 16px; }
+  .countdown-sub { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; margin-top: 2px; }
+
+  .projection { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 1px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); line-height: 1.8; }
+  .projection span { color: var(--text); }
+
+  .goal-setup { display: flex; gap: 10px; margin-top: 12px; }
+  .goal-input-sm { flex: 1; background: var(--dim); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: 'DM Mono', monospace; font-size: 16px; padding: 10px 12px; outline: none; text-align: center; transition: border-color 0.2s; -webkit-appearance: none; appearance: none; }
+  .goal-input-sm:focus { border-color: var(--accent); }
+  .goal-input-sm::placeholder { color: var(--muted); font-size: 11px; }
+  .goal-save-btn { background: var(--accent); border: none; border-radius: 8px; color: #0a0a0a; font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; font-weight: 500; padding: 10px 14px; cursor: pointer; white-space: nowrap; }
+
   /* Quote */
-  .quote-text {
-    font-size: 17px;
-    font-style: italic;
-    font-weight: 300;
-    line-height: 1.6;
-    color: var(--text);
-    margin-bottom: 12px;
-    border-left: 2px solid var(--accent);
-    padding-left: 16px;
-  }
-
+  .quote-text { font-size: 17px; font-style: italic; font-weight: 300; line-height: 1.6; color: var(--text); margin-bottom: 12px; border-left: 2px solid var(--accent); padding-left: 16px; }
   .quote-author { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; }
-
-  .quote-refresh {
-    background: none;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    color: var(--muted);
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 2px;
-    padding: 6px 12px;
-    cursor: pointer;
-    margin-top: 14px;
-    text-transform: uppercase;
-    transition: color 0.2s, border-color 0.2s;
-    display: block;
-  }
-
+  .quote-refresh { background: none; border: 1px solid var(--border); border-radius: 6px; color: var(--muted); font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 2px; padding: 6px 12px; cursor: pointer; margin-top: 14px; text-transform: uppercase; transition: color 0.2s, border-color 0.2s; display: block; }
   .quote-refresh:hover { color: var(--accent); border-color: var(--accent); }
 
   /* Weather */
@@ -330,26 +158,16 @@
   .weight-num { font-family: 'Bebas Neue', sans-serif; font-size: 80px; line-height: 1; color: var(--text); }
   .weight-unit { font-family: 'DM Mono', monospace; font-size: 18px; color: var(--muted); margin-bottom: 8px; }
   .weight-no-entry { font-size: 14px; color: var(--muted); font-style: italic; }
-
-  .weight-change {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    padding: 4px 10px;
-    border-radius: 20px;
-    margin-top: 8px;
-  }
-
+  .weight-change { display: inline-flex; align-items: center; gap: 4px; font-family: 'DM Mono', monospace; font-size: 12px; padding: 4px 10px; border-radius: 20px; margin-top: 8px; }
   .weight-change.down { background: rgba(200,245,66,0.1); color: var(--accent); }
   .weight-change.up { background: rgba(255,80,80,0.1); color: #ff6b6b; }
   .weight-change.same { background: var(--dim); color: var(--muted); }
 
+  .new-low-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(200,245,66,0.15); border: 1px solid rgba(200,245,66,0.3); border-radius: 20px; padding: 5px 12px; font-family: 'DM Mono', monospace; font-size: 11px; color: var(--accent); letter-spacing: 1px; margin-top: 10px; }
+
   /* Chart */
   .chart-wrap { position: relative; width: 100%; height: 200px; }
   .chart-empty { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted); text-align: center; padding: 40px 0; letter-spacing: 1px; }
-
   .chart-stats { display: flex; gap: 0; margin-bottom: 20px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
   .chart-stat { flex: 1; padding: 12px; text-align: center; border-right: 1px solid var(--border); }
   .chart-stat:last-child { border-right: none; }
@@ -359,105 +177,62 @@
   .chart-stat-lbl { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 1px; color: var(--muted); margin-top: 3px; text-transform: uppercase; }
 
   /* Log form */
-  .update-section { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
-
-  .update-toggle {
-    width: 100%;
-    background: none;
-    border: none;
-    color: var(--muted);
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    padding: 18px 24px;
-    text-align: left;
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: color 0.2s;
-  }
-
+  .update-section { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; box-shadow: 0 2px 12px var(--shadow); }
+  .update-toggle { width: 100%; background: none; border: none; color: var(--muted); font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; padding: 18px 24px; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: color 0.2s; }
   .update-toggle:hover { color: var(--text); }
   .toggle-arrow { font-size: 16px; transition: transform 0.2s; }
   .update-toggle.open .toggle-arrow { transform: rotate(180deg); }
-
   .update-form { display: none; padding: 0 24px 24px; flex-direction: column; gap: 14px; border-top: 1px solid var(--border); }
   .update-form.visible { display: flex; }
-
   .input-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; margin-bottom: 6px; display: block; }
-
-  .weight-input {
-    width: 100%;
-    background: var(--dim);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--text);
-    font-family: 'DM Mono', monospace;
-    font-size: 28px;
-    padding: 14px 16px;
-    outline: none;
-    text-align: center;
-    transition: border-color 0.2s;
-    -webkit-appearance: none;
-    appearance: none;
-  }
-
+  .weight-input { width: 100%; background: var(--dim); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: 'DM Mono', monospace; font-size: 28px; padding: 14px 16px; outline: none; text-align: center; transition: border-color 0.2s; -webkit-appearance: none; appearance: none; }
   .weight-input:focus { border-color: var(--accent); }
-
-  .save-btn {
-    width: 100%;
-    background: var(--accent);
-    border: none;
-    border-radius: 8px;
-    color: #0a0a0a;
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    font-weight: 500;
-    padding: 16px;
-    cursor: pointer;
-    transition: opacity 0.2s, transform 0.1s;
-  }
-
+  .save-btn { width: 100%; background: var(--accent); border: none; border-radius: 8px; color: #0a0a0a; font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 3px; text-transform: uppercase; font-weight: 500; padding: 16px; cursor: pointer; transition: opacity 0.2s, transform 0.1s; }
   .save-btn:active { transform: scale(0.98); opacity: 0.85; }
   .save-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
   .saved-msg { text-align: center; font-family: 'DM Mono', monospace; font-size: 11px; color: var(--accent); letter-spacing: 2px; display: none; }
 
+  /* Reminder */
+  .reminder-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .reminder-time { background: var(--dim); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: 'DM Mono', monospace; font-size: 18px; padding: 10px 14px; outline: none; transition: border-color 0.2s; flex: 1; min-width: 120px; }
+  .reminder-time:focus { border-color: var(--accent); }
+  .reminder-btn { background: var(--accent); border: none; border-radius: 8px; color: #0a0a0a; font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; font-weight: 500; padding: 12px 16px; cursor: pointer; white-space: nowrap; }
+  .reminder-status { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 1px; width: 100%; margin-top: 4px; }
+  .reminder-status.ok { color: var(--accent); }
+  .reminder-status.warn { color: #f5a623; }
+
   /* History */
-  .history-list { display: flex; flex-direction: column; gap: 0; }
+  .history-list { display: flex; flex-direction: column; }
   .history-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
   .history-item:last-child { border-bottom: none; }
   .history-day { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 1px; }
-  .history-date { font-size: 12px; color: #333; margin-top: 2px; font-family: 'DM Mono', monospace; }
+  .history-date { font-size: 12px; color: var(--muted); margin-top: 2px; font-family: 'DM Mono', monospace; opacity: 0.5; }
   .history-weight { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--text); }
   .history-delta { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); text-align: right; }
   .history-delta.neg { color: var(--accent); }
   .history-delta.pos { color: #ff6b6b; }
   .no-history { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted); text-align: center; padding: 16px 0; letter-spacing: 1px; }
 
-  .footer-note { margin-top: 40px; font-family: 'DM Mono', monospace; font-size: 10px; color: #333; letter-spacing: 2px; text-align: center; }
+  .footer-note { margin-top: 40px; font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); opacity: 0.4; letter-spacing: 2px; text-align: center; }
 
   @media (max-width: 380px) {
     .big-day { font-size: 72px; }
     .weather-temp { font-size: 50px; }
+    .header-controls { top: 20px; right: 12px; }
   }
 </style>
 </head>
 <body>
 
-<!-- ── SETUP SCREEN ── -->
+<canvas id="confettiCanvas"></canvas>
+
+<!-- SETUP SCREEN -->
 <div id="setupScreen">
   <div class="setup-logo">THE CUT</div>
   <div class="setup-tagline">Connect cloud sync</div>
-
   <div class="setup-card">
     <div class="setup-title">One-Time Setup</div>
-    <div class="setup-desc">Your credentials stay on this device only — they're never in your code or on GitHub.</div>
-
+    <div class="setup-desc">Your credentials stay on this device only — never in your code or on GitHub.</div>
     <div class="setup-steps">
       1. Go to <a href="https://jsonbin.io" target="_blank">jsonbin.io</a> → sign up free<br>
       2. Dashboard → <strong>API Keys</strong> → copy Master Key<br>
@@ -465,45 +240,59 @@
       4. Copy the <strong>Bin ID</strong> from the URL<br>
       5. Paste both below ↓
     </div>
-
     <div class="setup-field">
       <label class="setup-label">Master API Key</label>
       <input class="setup-input" id="setupKey" type="password" placeholder="$2b$10$..." autocomplete="off" spellcheck="false">
     </div>
-
     <div class="setup-field">
       <label class="setup-label">Bin ID</label>
       <input class="setup-input" id="setupBin" type="text" placeholder="6660abc123def..." autocomplete="off" spellcheck="false">
     </div>
-
     <button class="setup-connect-btn" id="connectBtn" onclick="connectCloud()">CONNECT & SYNC</button>
     <div class="setup-error" id="setupError"></div>
   </div>
-
   <button class="setup-skip" onclick="skipSetup()">Skip — use local storage only</button>
 </div>
 
-<!-- ── MAIN APP ── -->
+<!-- MAIN APP -->
 <div id="appScreen">
   <header>
+    <div class="header-controls">
+      <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">☀️</button>
+    </div>
     <div class="site-title">THE CUT</div>
     <div class="site-sub">daily weight tracker</div>
     <div class="sync-bar">
       <div class="sync-dot" id="syncDot"></div>
       <div class="sync-label" id="syncLabel">LOCAL ONLY</div>
-      <button class="sync-reset" onclick="resetCredentials()" title="Change sync credentials">change</button>
+      <button class="sync-reset" onclick="resetCredentials()">change</button>
     </div>
   </header>
 
   <div class="container">
 
+    <!-- Day + Streak -->
     <div class="card">
       <div class="card-label">Day</div>
       <div class="big-day" id="dayNum">–</div>
       <div class="day-label">of your journey</div>
       <div class="date-string" id="todayDate">–</div>
+      <div class="streak-row">
+        <div class="streak-fire" id="streakFire">🔥</div>
+        <div>
+          <div class="streak-num" id="streakNum">0</div>
+          <div class="streak-label">day streak</div>
+        </div>
+      </div>
     </div>
 
+    <!-- Goal & Progress -->
+    <div class="card">
+      <div class="card-label">Goal</div>
+      <div id="goalContent"></div>
+    </div>
+
+    <!-- Quote -->
     <div class="card">
       <div class="card-label">Today's Fuel</div>
       <div class="quote-text" id="quoteText"></div>
@@ -511,16 +300,19 @@
       <button class="quote-refresh" onclick="nextQuote()">↺ &nbsp;New Quote</button>
     </div>
 
+    <!-- Weather -->
     <div class="card">
       <div class="card-label">Weather</div>
       <div id="weatherDisplay"><div class="weather-loading">LOCATING...</div></div>
     </div>
 
+    <!-- Today's Weight -->
     <div class="card">
       <div class="card-label">Today's Weight</div>
       <div id="weightDisplay"><div class="weight-no-entry">Loading...</div></div>
     </div>
 
+    <!-- Log Weight -->
     <div class="update-section">
       <button class="update-toggle" id="toggleBtn" onclick="toggleForm()">
         <span>Log today's weight</span>
@@ -536,6 +328,7 @@
       </div>
     </div>
 
+    <!-- Chart -->
     <div class="card">
       <div class="card-label">Progress</div>
       <div id="chartStatsWrap"></div>
@@ -545,6 +338,18 @@
       </div>
     </div>
 
+    <!-- Reminder -->
+    <div class="card">
+      <div class="card-label">Daily Reminder</div>
+      <div style="font-size:13px;color:var(--muted);font-weight:300;margin-bottom:16px;line-height:1.5;">Set a daily nudge to log your weight. Works when the site is added to your home screen.</div>
+      <div class="reminder-row">
+        <input class="reminder-time" type="time" id="reminderTime">
+        <button class="reminder-btn" onclick="saveReminder()">SET REMINDER</button>
+      </div>
+      <div class="reminder-status" id="reminderStatus"></div>
+    </div>
+
+    <!-- History -->
     <div class="card">
       <div class="card-label">History</div>
       <div class="history-list" id="historyList">
@@ -557,251 +362,263 @@
 </div>
 
 <script>
-// ── CONFIG ───────────────────────────────────────────
+// ═══════════════════════════════════════
 const START_DATE = '2026-06-01';
-// ─────────────────────────────────────────────────────
+// ═══════════════════════════════════════
 
-// ── CREDENTIALS (stored in localStorage, never in code) ──
-function getCreds() {
-  return {
-    key: localStorage.getItem('thecut_api_key') || '',
-    bin: localStorage.getItem('thecut_bin_id') || ''
-  };
+// ── THEME ────────────────────────────
+function getTheme() { return localStorage.getItem('thecut_theme') || 'dark'; }
+function applyTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  document.getElementById('themeBtn').textContent = t === 'dark' ? '☀️' : '🌙';
+  localStorage.setItem('thecut_theme', t);
 }
+function toggleTheme() { applyTheme(getTheme() === 'dark' ? 'light' : 'dark'); }
+applyTheme(getTheme());
 
-function saveCreds(key, bin) {
-  localStorage.setItem('thecut_api_key', key);
-  localStorage.setItem('thecut_bin_id', bin);
-}
+// ── CREDENTIALS ──────────────────────
+function getCreds() { return { key: localStorage.getItem('thecut_api_key')||'', bin: localStorage.getItem('thecut_bin_id')||'' }; }
+function saveCreds(key, bin) { localStorage.setItem('thecut_api_key', key); localStorage.setItem('thecut_bin_id', bin); }
+function clearCreds() { localStorage.removeItem('thecut_api_key'); localStorage.removeItem('thecut_bin_id'); }
+function isConfigured() { const c = getCreds(); return c.key.length > 10 && c.bin.length > 5; }
 
-function clearCreds() {
-  localStorage.removeItem('thecut_api_key');
-  localStorage.removeItem('thecut_bin_id');
-}
+// ── ROUTING ──────────────────────────
+function showSetup() { document.getElementById('setupScreen').classList.add('visible'); document.getElementById('appScreen').classList.remove('visible'); }
+function showApp() { document.getElementById('setupScreen').classList.remove('visible'); document.getElementById('appScreen').classList.add('visible'); boot(); }
+function skipSetup() { localStorage.setItem('thecut_skip_sync','1'); showApp(); }
+function resetCredentials() { if(!confirm('Disconnect cloud sync on this device?')) return; clearCreds(); localStorage.removeItem('thecut_skip_sync'); showSetup(); }
 
-function isConfigured() {
-  const c = getCreds();
-  return c.key.length > 10 && c.bin.length > 5;
-}
-
-// ── ROUTING ──────────────────────────────────────────
-function showSetup() {
-  document.getElementById('setupScreen').classList.add('visible');
-  document.getElementById('appScreen').classList.remove('visible');
-}
-
-function showApp() {
-  document.getElementById('setupScreen').classList.remove('visible');
-  document.getElementById('appScreen').classList.add('visible');
-  boot();
-}
-
-function skipSetup() {
-  localStorage.setItem('thecut_skip_sync', '1');
-  showApp();
-}
-
-function resetCredentials() {
-  if (!confirm('Disconnect cloud sync on this device?')) return;
-  clearCreds();
-  localStorage.removeItem('thecut_skip_sync');
-  showSetup();
-}
-
-// ── CONNECT ──────────────────────────────────────────
 async function connectCloud() {
   const key = document.getElementById('setupKey').value.trim();
   const bin = document.getElementById('setupBin').value.trim();
   const btn = document.getElementById('connectBtn');
   const err = document.getElementById('setupError');
-
-  if (!key || !bin) {
-    err.textContent = 'BOTH FIELDS REQUIRED';
-    err.style.display = 'block';
-    return;
-  }
-
-  btn.disabled = true;
-  btn.textContent = 'CONNECTING...';
-  err.style.display = 'none';
-
+  if (!key||!bin) { err.textContent='BOTH FIELDS REQUIRED'; err.style.display='block'; return; }
+  btn.disabled=true; btn.textContent='CONNECTING...'; err.style.display='none';
   try {
-    const res = await fetch(`https://api.jsonbin.io/v3/b/${bin}/latest`, {
-      headers: { 'X-Master-Key': key }
-    });
-    if (!res.ok) throw new Error('Invalid credentials or Bin ID');
-    saveCreds(key, bin);
-    showApp();
-  } catch (e) {
-    err.textContent = 'COULD NOT CONNECT — CHECK KEY & BIN ID';
-    err.style.display = 'block';
-    btn.disabled = false;
-    btn.textContent = 'CONNECT & SYNC';
+    const res = await fetch(`https://api.jsonbin.io/v3/b/${bin}/latest`, { headers:{'X-Master-Key':key} });
+    if (!res.ok) throw new Error();
+    saveCreds(key,bin); showApp();
+  } catch {
+    err.textContent='COULD NOT CONNECT — CHECK KEY & BIN ID'; err.style.display='block';
+    btn.disabled=false; btn.textContent='CONNECT & SYNC';
   }
 }
 
-// ── QUOTES ───────────────────────────────────────────
+// ── QUOTES ───────────────────────────
 const QUOTES = [
-  { text: "The only bad workout is the one that didn't happen.", author: "Unknown" },
-  { text: "Don't wish it were easier. Wish you were better.", author: "Jim Rohn" },
-  { text: "It never gets easier. You just get stronger.", author: "Unknown" },
-  { text: "Suffer the pain of discipline or the pain of regret.", author: "Unknown" },
-  { text: "Your body can stand almost anything. It's your mind you have to convince.", author: "Unknown" },
-  { text: "The groundwork for all happiness is good health.", author: "Leigh Hunt" },
-  { text: "Take care of your body. It's the only place you have to live.", author: "Jim Rohn" },
-  { text: "You don't have to be great to start, but you have to start to be great.", author: "Zig Ziglar" },
-  { text: "Success is the sum of small efforts repeated day in and day out.", author: "Robert Collier" },
-  { text: "The hard days are what make you stronger.", author: "Aly Raisman" },
-  { text: "One pound at a time.", author: "Unknown" },
-  { text: "Motivation gets you started. Discipline keeps you going.", author: "Unknown" },
-  { text: "Fall seven times, stand up eight.", author: "Japanese Proverb" },
-  { text: "If it doesn't challenge you, it doesn't change you.", author: "Fred DeVito" },
-  { text: "You are one decision away from a completely different life.", author: "Unknown" },
-  { text: "Small steps every day add up to massive results.", author: "Unknown" },
-  { text: "Push yourself because no one else is going to do it for you.", author: "Unknown" },
-  { text: "Believe in yourself and all that you are.", author: "Christian D. Larson" },
-  { text: "Champions aren't made in gyms. Champions are made from something deep inside.", author: "Muhammad Ali" },
-  { text: "The comeback is always stronger than the setback.", author: "Unknown" },
-  { text: "Eat clean. Train mean. Get lean.", author: "Unknown" },
-  { text: "Your future self is watching you right now through your memories.", author: "Unknown" },
-  { text: "A year from now you'll wish you started today.", author: "Karen Lamb" },
-  { text: "Progress, not perfection.", author: "Unknown" },
-  { text: "Every rep brings you closer.", author: "Unknown" },
+  {text:"The only bad workout is the one that didn't happen.",author:"Unknown"},
+  {text:"Don't wish it were easier. Wish you were better.",author:"Jim Rohn"},
+  {text:"It never gets easier. You just get stronger.",author:"Unknown"},
+  {text:"Suffer the pain of discipline or the pain of regret.",author:"Unknown"},
+  {text:"Your body can stand almost anything. It's your mind you have to convince.",author:"Unknown"},
+  {text:"The groundwork for all happiness is good health.",author:"Leigh Hunt"},
+  {text:"Take care of your body. It's the only place you have to live.",author:"Jim Rohn"},
+  {text:"You don't have to be great to start, but you have to start to be great.",author:"Zig Ziglar"},
+  {text:"Success is the sum of small efforts repeated day in and day out.",author:"Robert Collier"},
+  {text:"The hard days are what make you stronger.",author:"Aly Raisman"},
+  {text:"One pound at a time.",author:"Unknown"},
+  {text:"Motivation gets you started. Discipline keeps you going.",author:"Unknown"},
+  {text:"Fall seven times, stand up eight.",author:"Japanese Proverb"},
+  {text:"If it doesn't challenge you, it doesn't change you.",author:"Fred DeVito"},
+  {text:"You are one decision away from a completely different life.",author:"Unknown"},
+  {text:"Small steps every day add up to massive results.",author:"Unknown"},
+  {text:"Push yourself because no one else is going to do it for you.",author:"Unknown"},
+  {text:"Champions aren't made in gyms. Champions are made from something deep inside.",author:"Muhammad Ali"},
+  {text:"The comeback is always stronger than the setback.",author:"Unknown"},
+  {text:"Progress, not perfection.",author:"Unknown"},
+  {text:"A year from now you'll wish you started today.",author:"Karen Lamb"},
+  {text:"Every rep brings you closer.",author:"Unknown"},
+  {text:"Your future self is watching you right now through your memories.",author:"Unknown"},
+  {text:"Believe in yourself and all that you are.",author:"Christian D. Larson"},
+  {text:"Eat clean. Train mean. Get lean.",author:"Unknown"},
 ];
-
 let quoteIndex = 0;
+function showQuote(idx) { const q=QUOTES[idx]; document.getElementById('quoteText').textContent=`"${q.text}"`; document.getElementById('quoteAuthor').textContent=`— ${q.author}`; }
+function nextQuote() { quoteIndex=(quoteIndex+1)%QUOTES.length; showQuote(quoteIndex); }
 
-function showQuote(idx) {
-  const q = QUOTES[idx];
-  document.getElementById('quoteText').textContent = `"${q.text}"`;
-  document.getElementById('quoteAuthor').textContent = `— ${q.author}`;
-}
-
-function nextQuote() {
-  quoteIndex = (quoteIndex + 1) % QUOTES.length;
-  showQuote(quoteIndex);
-}
-
-// ── HELPERS ──────────────────────────────────────────
+// ── HELPERS ──────────────────────────
 function getDayNumber() {
-  const start = new Date(START_DATE + 'T00:00:00');
+  const start = new Date(START_DATE+'T00:00:00');
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  return Math.max(1, Math.floor((today - start) / 86400000) + 1);
+  return Math.max(1, Math.floor((today-start)/86400000)+1);
 }
+function formatDateStr(d) { return d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'}); }
+function todayKey() { const d=new Date(); return `${d.getFullYear()}_${d.getMonth()}_${d.getDate()}`; }
 
-function formatDateStr(date) {
-  return date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
-}
-
-function todayKey() {
-  const d = new Date();
-  return `${d.getFullYear()}_${d.getMonth()}_${d.getDate()}`;
-}
-
-// ── DATA LAYER ───────────────────────────────────────
+// ── DATA LAYER ───────────────────────
 let _history = [];
-
-function loadLocal() {
-  try { return JSON.parse(localStorage.getItem('thecut_history') || '[]'); }
-  catch { return []; }
-}
-
+function loadLocal() { try { return JSON.parse(localStorage.getItem('thecut_history')||'[]'); } catch { return []; } }
 function saveLocal(h) { localStorage.setItem('thecut_history', JSON.stringify(h)); }
 
-function setSyncStatus(state, label) {
-  const dot = document.getElementById('syncDot');
-  const lbl = document.getElementById('syncLabel');
-  dot.className = 'sync-dot ' + state;
-  lbl.textContent = label;
+function setSyncStatus(state,label) {
+  document.getElementById('syncDot').className='sync-dot '+state;
+  document.getElementById('syncLabel').textContent=label;
 }
 
 async function cloudRead() {
-  const { key, bin } = getCreds();
-  setSyncStatus('syncing', 'SYNCING...');
-  const res = await fetch(`https://api.jsonbin.io/v3/b/${bin}/latest`, {
-    headers: { 'X-Master-Key': key }
-  });
-  if (!res.ok) throw new Error('Read failed');
-  const json = await res.json();
-  return json.record.history || [];
+  const {key,bin}=getCreds(); setSyncStatus('syncing','SYNCING...');
+  const res=await fetch(`https://api.jsonbin.io/v3/b/${bin}/latest`,{headers:{'X-Master-Key':key}});
+  if (!res.ok) throw new Error();
+  return (await res.json()).record.history||[];
 }
 
-async function cloudWrite(history) {
-  const { key, bin } = getCreds();
-  setSyncStatus('syncing', 'SAVING...');
-  const res = await fetch(`https://api.jsonbin.io/v3/b/${bin}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json', 'X-Master-Key': key },
-    body: JSON.stringify({ history })
-  });
-  if (!res.ok) throw new Error('Write failed');
+async function cloudWrite(h) {
+  const {key,bin}=getCreds(); setSyncStatus('syncing','SAVING...');
+  const res=await fetch(`https://api.jsonbin.io/v3/b/${bin}`,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':key},body:JSON.stringify({history:h})});
+  if (!res.ok) throw new Error();
 }
 
 async function loadHistory() {
   if (isConfigured()) {
-    try {
-      _history = await cloudRead();
-      saveLocal(_history);
-      setSyncStatus('synced', 'SYNCED');
-      document.getElementById('footerNote').textContent = 'SYNCED VIA JSONBIN · GITHUB PAGES';
-    } catch {
-      _history = loadLocal();
-      setSyncStatus('error', 'OFFLINE — LOCAL CACHE');
-    }
-  } else {
-    _history = loadLocal();
-    setSyncStatus('', 'LOCAL ONLY');
-  }
+    try { _history=await cloudRead(); saveLocal(_history); setSyncStatus('synced','SYNCED'); document.getElementById('footerNote').textContent='SYNCED VIA JSONBIN · GITHUB PAGES'; }
+    catch { _history=loadLocal(); setSyncStatus('error','OFFLINE — LOCAL CACHE'); }
+  } else { _history=loadLocal(); setSyncStatus('','LOCAL ONLY'); }
   return _history;
 }
 
 async function persistHistory(h) {
-  _history = h;
-  saveLocal(h);
-  if (isConfigured()) {
-    try {
-      await cloudWrite(h);
-      setSyncStatus('synced', 'SYNCED');
-    } catch {
-      setSyncStatus('error', 'SYNC FAILED — SAVED LOCALLY');
+  _history=h; saveLocal(h);
+  if (isConfigured()) { try { await cloudWrite(h); setSyncStatus('synced','SYNCED'); } catch { setSyncStatus('error','SYNC FAILED — SAVED LOCALLY'); } }
+}
+
+function getTodayEntry() { return _history.find(e=>e.key===todayKey())||null; }
+
+// ── STREAK ───────────────────────────
+function calcStreak() {
+  if (!_history.length) return 0;
+  const sorted = [..._history].sort((a,b)=>b.day-a.day);
+  const todayDay = getDayNumber();
+  let streak = 0;
+  let expected = sorted[0].day === todayDay ? todayDay : todayDay - 1;
+  for (const e of sorted) {
+    if (e.day === expected) { streak++; expected--; }
+    else if (e.day < expected) break;
+  }
+  return streak;
+}
+
+function renderStreak() {
+  const s = calcStreak();
+  document.getElementById('streakNum').textContent = s;
+  document.getElementById('streakFire').textContent = s >= 7 ? '🔥' : s >= 3 ? '⚡' : s >= 1 ? '✅' : '○';
+}
+
+// ── GOAL ─────────────────────────────
+function getGoal() {
+  try { return JSON.parse(localStorage.getItem('thecut_goal')||'null'); } catch { return null; }
+}
+function saveGoal(startW, goalW) { localStorage.setItem('thecut_goal', JSON.stringify({startW,goalW})); }
+
+function renderGoal() {
+  const goal = getGoal();
+  const content = document.getElementById('goalContent');
+  const currentEntry = getTodayEntry() || (_history.length ? _history[_history.length-1] : null);
+  const currentW = currentEntry ? currentEntry.weight : null;
+
+  if (!goal) {
+    content.innerHTML = `
+      <div style="font-size:13px;color:var(--muted);margin-bottom:14px;font-weight:300;">Set your starting and goal weight to track progress.</div>
+      <div class="goal-setup">
+        <input class="goal-input-sm" type="number" id="goalStart" placeholder="Start (lbs)" step="0.1" inputmode="decimal">
+        <input class="goal-input-sm" type="number" id="goalTarget" placeholder="Goal (lbs)" step="0.1" inputmode="decimal">
+        <button class="goal-save-btn" onclick="submitGoal()">SET</button>
+      </div>
+    `;
+    return;
+  }
+
+  const { startW, goalW } = goal;
+  const totalNeeded = startW - goalW;
+  const current = currentW !== null ? currentW : startW;
+  const lost = startW - current;
+  const pct = totalNeeded > 0 ? Math.min(100, Math.max(0, (lost/totalNeeded)*100)) : 0;
+  const remaining = Math.max(0, current - goalW);
+
+  // Projection
+  let projHTML = '';
+  if (_history.length >= 2) {
+    const first = _history[0], last = _history[_history.length-1];
+    const days = last.day - first.day || 1;
+    const lostSoFar = first.weight - last.weight;
+    const ratePerDay = lostSoFar / days;
+    if (ratePerDay > 0 && remaining > 0) {
+      const daysLeft = Math.ceil(remaining / ratePerDay);
+      const projDate = new Date(); projDate.setDate(projDate.getDate() + daysLeft);
+      const projStr = projDate.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+      projHTML = `<div class="projection">At your current pace of <span>${ratePerDay.toFixed(2)} lbs/day</span>, you'll hit your goal around <span>${projStr}</span> — ${daysLeft} days from now.</div>`;
+    } else if (ratePerDay <= 0) {
+      projHTML = `<div class="projection" style="color:#ff6b6b">Trending up — refocus and you'll get back on track.</div>`;
     }
   }
+
+  content.innerHTML = `
+    <div class="goal-row">
+      <div><div class="goal-label-sm">Start</div><div class="goal-val">${startW} lbs</div></div>
+      <div style="text-align:center"><div class="goal-label-sm">Current</div><div class="goal-val">${current.toFixed(1)} lbs</div></div>
+      <div style="text-align:right"><div class="goal-label-sm">Goal</div><div class="goal-val">${goalW} lbs</div></div>
+    </div>
+    <div class="progress-track"><div class="progress-fill" style="width:${pct.toFixed(1)}%"></div></div>
+    <div class="progress-labels"><span class="progress-lbl">${pct.toFixed(0)}% there</span><span class="progress-lbl">${lost.toFixed(1)} lbs lost</span></div>
+    <div class="countdown-big">${remaining.toFixed(1)}</div>
+    <div class="countdown-sub">lbs to go</div>
+    ${projHTML}
+    <div style="margin-top:14px"><button onclick="resetGoal()" style="background:none;border:none;color:var(--muted);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;text-decoration:underline;text-underline-offset:3px;">reset goal</button></div>
+  `;
 }
 
-function getTodayEntry() {
-  const key = todayKey();
-  return _history.find(e => e.key === key) || null;
+function submitGoal() {
+  const s = parseFloat(document.getElementById('goalStart').value);
+  const g = parseFloat(document.getElementById('goalTarget').value);
+  if (isNaN(s)||isNaN(g)||s<=0||g<=0||g>=s) {
+    alert('Goal weight must be less than start weight.');
+    return;
+  }
+  saveGoal(s,g); renderGoal();
 }
 
-// ── RENDER WEIGHT ─────────────────────────────────────
+function resetGoal() { if(!confirm('Reset your goal?')) return; localStorage.removeItem('thecut_goal'); renderGoal(); }
+
+// ── WEIGHT DISPLAY ───────────────────
+function isNewLow(weight) {
+  const prev = _history.filter(e=>e.key!==todayKey());
+  if (!prev.length) return false;
+  return weight < Math.min(...prev.map(e=>e.weight));
+}
+
 function renderWeight() {
   const todayEntry = getTodayEntry();
   const display = document.getElementById('weightDisplay');
-  if (!todayEntry) {
-    display.innerHTML = '<div class="weight-no-entry">No entry yet today</div>';
-    return;
-  }
-  const idx = _history.findIndex(e => e.key === todayEntry.key);
-  const prev = idx > 0 ? _history[idx - 1] : null;
-  let changeHTML = '';
+  if (!todayEntry) { display.innerHTML='<div class="weight-no-entry">No entry yet today</div>'; return; }
+  const idx = _history.findIndex(e=>e.key===todayEntry.key);
+  const prev = idx>0?_history[idx-1]:null;
+  let changeHTML='';
   if (prev) {
-    const delta = todayEntry.weight - prev.weight;
-    const sign = delta < 0 ? '−' : delta > 0 ? '+' : '±';
-    const cls = delta < 0 ? 'down' : delta > 0 ? 'up' : 'same';
-    changeHTML = `<div class="weight-change ${cls}">${sign} ${Math.abs(delta).toFixed(1)} lbs from yesterday</div>`;
+    const delta=todayEntry.weight-prev.weight;
+    const sign=delta<0?'−':delta>0?'+':'±';
+    const cls=delta<0?'down':delta>0?'up':'same';
+    changeHTML=`<div class="weight-change ${cls}">${sign} ${Math.abs(delta).toFixed(1)} lbs from yesterday</div>`;
   }
-  display.innerHTML = `
+  const lowBadge = isNewLow(todayEntry.weight) ? '<div class="new-low-badge">🏆 New low weight!</div>' : '';
+  display.innerHTML=`
     <div class="weight-display">
       <div class="weight-num">${todayEntry.weight.toFixed(1)}</div>
       <div class="weight-unit">lbs</div>
     </div>
-    ${changeHTML}
+    ${changeHTML}${lowBadge}
   `;
 }
 
-// ── RENDER CHART ──────────────────────────────────────
+// ── CHART ────────────────────────────
 let chartInstance = null;
+
+function getLineColor() {
+  if (_history.length < 2) return '#c8f542';
+  const first = _history[0].weight;
+  const last = _history[_history.length-1].weight;
+  return last <= first ? '#c8f542' : '#ff6b6b';
+}
 
 function renderChart() {
   const history = _history;
@@ -810,242 +627,285 @@ function renderChart() {
   const statsWrap = document.getElementById('chartStatsWrap');
 
   if (history.length < 2) {
-    empty.style.display = 'block';
-    canvas.style.display = 'none';
-    statsWrap.innerHTML = '';
+    empty.style.display='block'; canvas.style.display='none'; statsWrap.innerHTML='';
     return;
   }
+  empty.style.display='none'; canvas.style.display='block';
 
-  empty.style.display = 'none';
-  canvas.style.display = 'block';
+  const labels = history.map(e=>`D${e.day}`);
+  const weights = history.map(e=>e.weight);
+  const first=weights[0], last=weights[weights.length-1];
+  const totalLost=first-last;
+  const min=Math.min(...weights), max=Math.max(...weights);
+  const color = getLineColor();
+  const lostCls=totalLost>0?'accent':totalLost<0?'red':'';
+  const sign=totalLost>0?'−':totalLost<0?'+':'';
 
-  const labels = history.map(e => `D${e.day}`);
-  const weights = history.map(e => e.weight);
-  const first = weights[0], last = weights[weights.length - 1];
-  const totalLost = first - last;
-  const min = Math.min(...weights), max = Math.max(...weights);
-
-  const lostCls = totalLost > 0 ? 'accent' : totalLost < 0 ? 'red' : '';
-  const sign = totalLost > 0 ? '−' : totalLost < 0 ? '+' : '';
-  statsWrap.innerHTML = `
+  statsWrap.innerHTML=`
     <div class="chart-stats">
-      <div class="chart-stat">
-        <div class="chart-stat-val ${lostCls}">${sign}${Math.abs(totalLost).toFixed(1)}</div>
-        <div class="chart-stat-lbl">lbs total</div>
-      </div>
-      <div class="chart-stat">
-        <div class="chart-stat-val">${history.length}</div>
-        <div class="chart-stat-lbl">entries</div>
-      </div>
-      <div class="chart-stat">
-        <div class="chart-stat-val">${min.toFixed(1)}</div>
-        <div class="chart-stat-lbl">lowest</div>
-      </div>
+      <div class="chart-stat"><div class="chart-stat-val ${lostCls}">${sign}${Math.abs(totalLost).toFixed(1)}</div><div class="chart-stat-lbl">lbs total</div></div>
+      <div class="chart-stat"><div class="chart-stat-val">${history.length}</div><div class="chart-stat-lbl">entries</div></div>
+      <div class="chart-stat"><div class="chart-stat-val">${min.toFixed(1)}</div><div class="chart-stat-lbl">lowest</div></div>
     </div>
   `;
 
-  const pad = Math.max((max - min) * 0.3, 2);
+  const pad=Math.max((max-min)*0.3,2);
   if (chartInstance) chartInstance.destroy();
 
   chartInstance = new Chart(canvas, {
-    type: 'line',
-    data: {
+    type:'line',
+    data:{
       labels,
-      datasets: [{
-        data: weights,
-        borderColor: '#c8f542',
-        borderWidth: 2,
-        pointBackgroundColor: '#c8f542',
-        pointBorderColor: '#0a0a0a',
-        pointBorderWidth: 2,
-        pointRadius: history.length > 30 ? 2 : 5,
-        pointHoverRadius: 7,
-        tension: 0.35,
-        fill: true,
-        backgroundColor: (ctx) => {
-          const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 200);
-          g.addColorStop(0, 'rgba(200,245,66,0.18)');
-          g.addColorStop(1, 'rgba(200,245,66,0)');
+      datasets:[{
+        data:weights,
+        borderColor:color,
+        borderWidth:2,
+        pointBackgroundColor:color,
+        pointBorderColor: getTheme()==='dark'?'#0a0a0a':'#ffffff',
+        pointBorderWidth:2,
+        pointRadius:history.length>30?2:5,
+        pointHoverRadius:7,
+        tension:0.35,
+        fill:true,
+        backgroundColor:(ctx)=>{
+          const g=ctx.chart.ctx.createLinearGradient(0,0,0,200);
+          const rgb=color==='#c8f542'?'200,245,66':'255,107,107';
+          g.addColorStop(0,`rgba(${rgb},0.18)`);
+          g.addColorStop(1,`rgba(${rgb},0)`);
           return g;
         }
       }]
     },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: '#1a1a1a',
-          borderColor: '#2a2a2a',
-          borderWidth: 1,
-          titleColor: '#555',
-          bodyColor: '#f0f0f0',
-          titleFont: { family: 'DM Mono', size: 10 },
-          bodyFont: { family: 'Bebas Neue', size: 20 },
-          padding: 12,
-          callbacks: {
-            title: (items) => `DAY ${history[items[0].dataIndex].day}`,
-            label: (item) => `${item.raw.toFixed(1)} lbs`
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          backgroundColor:getTheme()==='dark'?'#1a1a1a':'#fff',
+          borderColor:getTheme()==='dark'?'#2a2a2a':'#e0e0d8',
+          borderWidth:1, titleColor:'#888', bodyColor:getTheme()==='dark'?'#f0f0f0':'#111',
+          titleFont:{family:'DM Mono',size:10}, bodyFont:{family:'Bebas Neue',size:20}, padding:12,
+          callbacks:{
+            title:(items)=>`DAY ${history[items[0].dataIndex].day}`,
+            label:(item)=>`${item.raw.toFixed(1)} lbs`
           }
         }
       },
-      scales: {
-        x: {
-          grid: { color: 'rgba(255,255,255,0.04)' },
-          ticks: { color: '#555', font: { family: 'DM Mono', size: 9 }, maxTicksLimit: 8, maxRotation: 0 },
-          border: { color: '#1e1e1e' }
-        },
-        y: {
-          min: Math.floor(min - pad), max: Math.ceil(max + pad),
-          grid: { color: 'rgba(255,255,255,0.04)' },
-          ticks: { color: '#555', font: { family: 'DM Mono', size: 9 }, maxTicksLimit: 5, callback: v => v + ' lb' },
-          border: { color: '#1e1e1e' }
-        }
+      scales:{
+        x:{grid:{color:'rgba(128,128,128,0.08)'},ticks:{color:'#888',font:{family:'DM Mono',size:9},maxTicksLimit:8,maxRotation:0},border:{color:'rgba(128,128,128,0.15)'}},
+        y:{min:Math.floor(min-pad),max:Math.ceil(max+pad),grid:{color:'rgba(128,128,128,0.08)'},ticks:{color:'#888',font:{family:'DM Mono',size:9},maxTicksLimit:5,callback:v=>v+' lb'},border:{color:'rgba(128,128,128,0.15)'}}
       }
     }
   });
 }
 
-// ── RENDER HISTORY ────────────────────────────────────
+// ── HISTORY ──────────────────────────
 function renderHistory() {
-  const list = document.getElementById('historyList');
-  if (!_history.length) {
-    list.innerHTML = '<div class="no-history">No entries yet.</div>';
-    return;
-  }
-  const reversed = [..._history].reverse();
-  list.innerHTML = reversed.map((entry, i) => {
-    const prev = reversed[i + 1];
-    let deltaHTML = '';
+  const list=document.getElementById('historyList');
+  if (!_history.length) { list.innerHTML='<div class="no-history">No entries yet.</div>'; return; }
+  const reversed=[..._history].reverse();
+  list.innerHTML=reversed.map((entry,i)=>{
+    const prev=reversed[i+1];
+    let deltaHTML='';
     if (prev) {
-      const delta = entry.weight - prev.weight;
-      const sign = delta < 0 ? '−' : delta > 0 ? '+' : '±';
-      const cls = delta < 0 ? 'neg' : delta > 0 ? 'pos' : '';
-      deltaHTML = `<div class="history-delta ${cls}">${sign} ${Math.abs(delta).toFixed(1)} lbs</div>`;
+      const delta=entry.weight-prev.weight;
+      const sign=delta<0?'−':delta>0?'+':'±';
+      const cls=delta<0?'neg':delta>0?'pos':'';
+      deltaHTML=`<div class="history-delta ${cls}">${sign} ${Math.abs(delta).toFixed(1)} lbs</div>`;
     }
     return `
       <div class="history-item">
-        <div>
-          <div class="history-day">DAY ${entry.day}</div>
-          <div class="history-date">${entry.date}</div>
-        </div>
-        <div style="text-align:right">
-          <div class="history-weight">${entry.weight.toFixed(1)}</div>
-          ${deltaHTML}
-        </div>
+        <div><div class="history-day">DAY ${entry.day}</div><div class="history-date">${entry.date}</div></div>
+        <div style="text-align:right"><div class="history-weight">${entry.weight.toFixed(1)}</div>${deltaHTML}</div>
       </div>
     `;
   }).join('');
 }
 
-function renderAll() {
-  renderWeight();
-  renderChart();
-  renderHistory();
-}
+function renderAll() { renderWeight(); renderStreak(); renderGoal(); renderChart(); renderHistory(); }
 
-// ── SAVE WEIGHT ───────────────────────────────────────
+// ── SAVE WEIGHT ──────────────────────
 async function saveWeight() {
-  const input = document.getElementById('weightInput');
-  const btn = document.getElementById('saveBtn');
-  const val = parseFloat(input.value);
-  if (isNaN(val) || val < 50 || val > 600) {
-    input.style.borderColor = '#ff6b6b';
-    setTimeout(() => input.style.borderColor = '', 1000);
-    return;
-  }
+  const input=document.getElementById('weightInput');
+  const btn=document.getElementById('saveBtn');
+  const val=parseFloat(input.value);
+  if (isNaN(val)||val<50||val>600) { input.style.borderColor='#ff6b6b'; setTimeout(()=>input.style.borderColor='',1000); return; }
 
-  btn.disabled = true;
-  btn.textContent = 'SAVING...';
+  const wasNewLow = isNewLow(val);
 
-  const key = todayKey();
-  const dateStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-  const updated = _history.filter(e => e.key !== key);
-  updated.push({ key, day: getDayNumber(), date: dateStr, weight: val });
-  updated.sort((a, b) => a.day - b.day);
+  btn.disabled=true; btn.textContent='SAVING...';
+  const key=todayKey();
+  const dateStr=new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  const updated=_history.filter(e=>e.key!==key);
+  updated.push({key,day:getDayNumber(),date:dateStr,weight:val});
+  updated.sort((a,b)=>a.day-b.day);
 
   await persistHistory(updated);
   renderAll();
 
-  btn.disabled = false;
-  btn.textContent = 'SAVE WEIGHT';
+  btn.disabled=false; btn.textContent='SAVE WEIGHT';
+  const msg=document.getElementById('savedMsg');
+  msg.style.display='block';
+  msg.textContent=isConfigured()?'✓  SAVED & SYNCED':'✓  SAVED LOCALLY';
+  setTimeout(()=>msg.style.display='none',2500);
+  input.value='';
 
-  const msg = document.getElementById('savedMsg');
-  msg.style.display = 'block';
-  msg.textContent = isConfigured() ? '✓  SAVED & SYNCED' : '✓  SAVED LOCALLY';
-  setTimeout(() => msg.style.display = 'none', 2500);
-  input.value = '';
+  if (wasNewLow) launchConfetti();
 }
 
-function toggleForm() {
-  document.getElementById('toggleBtn').classList.toggle('open');
-  document.getElementById('updateForm').classList.toggle('visible');
+function toggleForm() { document.getElementById('toggleBtn').classList.toggle('open'); document.getElementById('updateForm').classList.toggle('visible'); }
+
+// ── CONFETTI ─────────────────────────
+function launchConfetti() {
+  const canvas = document.getElementById('confettiCanvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const pieces = Array.from({length:120},()=>({
+    x: Math.random()*canvas.width,
+    y: Math.random()*canvas.height - canvas.height,
+    r: Math.random()*6+3,
+    d: Math.random()*4+2,
+    color: ['#c8f542','#ffffff','#f5a623','#ff6b6b','#42d4f5'][Math.floor(Math.random()*5)],
+    tilt: Math.random()*10-10,
+    tiltAngle: 0,
+    tiltSpeed: Math.random()*0.1+0.05
+  }));
+
+  let frame = 0;
+  const maxFrames = 180;
+
+  function draw() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    pieces.forEach(p=>{
+      ctx.beginPath();
+      ctx.lineWidth = p.r/2;
+      ctx.strokeStyle = p.color;
+      ctx.moveTo(p.x+p.tilt+p.r/4, p.y);
+      ctx.lineTo(p.x+p.tilt, p.y+p.tilt+p.r/4);
+      ctx.stroke();
+      p.y += p.d;
+      p.tiltAngle += p.tiltSpeed;
+      p.tilt = Math.sin(p.tiltAngle)*12;
+      if (p.y > canvas.height) { p.y=-10; p.x=Math.random()*canvas.width; }
+    });
+    frame++;
+    if (frame < maxFrames) requestAnimationFrame(draw);
+    else ctx.clearRect(0,0,canvas.width,canvas.height);
+  }
+  draw();
 }
 
-// ── WEATHER ───────────────────────────────────────────
-function fetchWeather(lat, lon) {
+// ── REMINDER ─────────────────────────
+function loadReminderStatus() {
+  const saved = localStorage.getItem('thecut_reminder');
+  const statusEl = document.getElementById('reminderStatus');
+  const timeEl = document.getElementById('reminderTime');
+  if (saved) {
+    timeEl.value = saved;
+    if ('Notification' in window && Notification.permission === 'granted') {
+      statusEl.textContent = `✓ Reminder set for ${formatTime(saved)}`; statusEl.className='reminder-status ok';
+    } else {
+      statusEl.textContent = 'Reminder saved — tap Set to enable notifications'; statusEl.className='reminder-status warn';
+    }
+  }
+}
+
+function formatTime(t) {
+  const [h,m]=t.split(':').map(Number);
+  const ampm=h>=12?'PM':'AM';
+  return `${h%12||12}:${String(m).padStart(2,'0')} ${ampm}`;
+}
+
+async function saveReminder() {
+  const t = document.getElementById('reminderTime').value;
+  const statusEl = document.getElementById('reminderStatus');
+  if (!t) { statusEl.textContent='Pick a time first'; statusEl.className='reminder-status warn'; return; }
+
+  localStorage.setItem('thecut_reminder', t);
+
+  if (!('Notification' in window)) {
+    statusEl.textContent='Notifications not supported on this browser'; statusEl.className='reminder-status warn'; return;
+  }
+
+  if (Notification.permission === 'denied') {
+    statusEl.textContent='Notifications blocked — enable in browser settings'; statusEl.className='reminder-status warn'; return;
+  }
+
+  if (Notification.permission !== 'granted') {
+    const perm = await Notification.requestPermission();
+    if (perm !== 'granted') {
+      statusEl.textContent='Permission denied — time saved, but no notification'; statusEl.className='reminder-status warn'; return;
+    }
+  }
+
+  statusEl.textContent=`✓ Reminder set for ${formatTime(t)}`; statusEl.className='reminder-status ok';
+  scheduleReminder(t);
+}
+
+function scheduleReminder(timeStr) {
+  const [h,m] = timeStr.split(':').map(Number);
+  const now = new Date();
+  const target = new Date();
+  target.setHours(h,m,0,0);
+  if (target <= now) target.setDate(target.getDate()+1);
+  const ms = target-now;
+  setTimeout(()=>{
+    if ('Notification' in window && Notification.permission==='granted') {
+      new Notification('The Cut 🔥',{body:"Time to log your weight. Keep the streak alive!",icon:''});
+    }
+    scheduleReminder(timeStr); // reschedule for tomorrow
+  }, ms);
+}
+
+// ── WEATHER ──────────────────────────
+function fetchWeather(lat,lon) {
   fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto`)
-    .then(r => r.json())
-    .then(data => {
-      const cw = data.current_weather;
-      document.getElementById('weatherDisplay').innerHTML = `
+    .then(r=>r.json()).then(data=>{
+      const cw=data.current_weather;
+      document.getElementById('weatherDisplay').innerHTML=`
         <div class="weather-row">
           <div class="weather-temp">${Math.round(cw.temperature)}°</div>
           <div class="weather-details">
-            <div class="weather-desc">${wmoIcon(cw.weathercode, cw.is_day)} ${wmoDesc(cw.weathercode)}</div>
+            <div class="weather-desc">${wmoIcon(cw.weathercode,cw.is_day)} ${wmoDesc(cw.weathercode)}</div>
             <div class="weather-meta">Wind ${Math.round(cw.windspeed)} mph · F</div>
           </div>
         </div>
       `;
-    })
-    .catch(() => {
-      document.getElementById('weatherDisplay').innerHTML = '<div class="weather-loading">WEATHER UNAVAILABLE</div>';
-    });
+    }).catch(()=>{ document.getElementById('weatherDisplay').innerHTML='<div class="weather-loading">WEATHER UNAVAILABLE</div>'; });
 }
+function wmoDesc(c){if(c===0)return'Clear sky';if(c<=2)return'Partly cloudy';if(c===3)return'Overcast';if(c<=49)return'Foggy';if(c<=59)return'Drizzle';if(c<=69)return'Rain';if(c<=79)return'Snow';if(c<=82)return'Rain showers';if(c<=86)return'Snow showers';return'Thunderstorm';}
+function wmoIcon(c,d){if(c===0)return d?'☀️':'🌙';if(c<=2)return'⛅';if(c===3)return'☁️';if(c<=49)return'🌫️';if(c<=69)return'🌧️';if(c<=79)return'❄️';if(c<=86)return'🌨️';return'⛈️';}
 
-function wmoDesc(c) {
-  if (c===0) return 'Clear sky'; if (c<=2) return 'Partly cloudy'; if (c===3) return 'Overcast';
-  if (c<=49) return 'Foggy'; if (c<=59) return 'Drizzle'; if (c<=69) return 'Rain';
-  if (c<=79) return 'Snow'; if (c<=82) return 'Rain showers'; if (c<=86) return 'Snow showers';
-  return 'Thunderstorm';
-}
-
-function wmoIcon(c, isDay) {
-  if (c===0) return isDay ? '☀️' : '🌙'; if (c<=2) return '⛅'; if (c===3) return '☁️';
-  if (c<=49) return '🌫️'; if (c<=69) return '🌧️'; if (c<=79) return '❄️';
-  if (c<=86) return '🌨️'; return '⛈️';
-}
-
-// ── BOOT ──────────────────────────────────────────────
+// ── BOOT ─────────────────────────────
 function boot() {
-  // Day + date
   document.getElementById('dayNum').textContent = getDayNumber();
   document.getElementById('todayDate').textContent = formatDateStr(new Date());
 
-  // Quote
-  quoteIndex = (new Date().getFullYear() * 1000 + new Date().getMonth() * 31 + new Date().getDate()) % QUOTES.length;
+  const d=new Date();
+  quoteIndex=(d.getFullYear()*1000+d.getMonth()*31+d.getDate())%QUOTES.length;
   showQuote(quoteIndex);
 
-  // Weather
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
-      pos => fetchWeather(pos.coords.latitude, pos.coords.longitude),
-      () => { document.getElementById('weatherDisplay').innerHTML = '<div class="weather-loading">ALLOW LOCATION FOR WEATHER</div>'; }
+      pos=>fetchWeather(pos.coords.latitude,pos.coords.longitude),
+      ()=>{ document.getElementById('weatherDisplay').innerHTML='<div class="weather-loading">ALLOW LOCATION FOR WEATHER</div>'; }
     );
   }
 
-  // Data
+  loadReminderStatus();
+
+  const saved=localStorage.getItem('thecut_reminder');
+  if (saved && 'Notification' in window && Notification.permission==='granted') scheduleReminder(saved);
+
   loadHistory().then(renderAll);
 }
 
-// ── INIT ──────────────────────────────────────────────
-if (isConfigured() || localStorage.getItem('thecut_skip_sync') === '1') {
-  showApp();
-} else {
-  showSetup();
-}
+// ── INIT ─────────────────────────────
+if (isConfigured()||localStorage.getItem('thecut_skip_sync')==='1') showApp();
+else showSetup();
 </script>
 </body>
 </html>
